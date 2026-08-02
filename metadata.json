@@ -1,0 +1,6 @@
+{
+  "name": "CatatYuk",
+  "description": "Aplikasi pencatatan pengeluaran pribadi harian yang simpel, lucu, elegan, dan ringan dengan laporan dan kesimpulan otomatis 30 hari.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
