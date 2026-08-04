@@ -9,29 +9,37 @@ const STORAGE_KEY_CATEGORIES = 'catatyuk_categories_v1';
 const STORAGE_KEY_CONFIG = 'catatyuk_config_v1';
 
 export function useExpenses() {
-  // Expenses state
+  // Expenses state with resilient localStorage loading
   const [expenses, setExpenses] = useState<Expense[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_EXPENSES);
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+        if (Array.isArray(parsed)) {
+          // Remove legacy pre-populated dummy sample items so user starts clean
+          const userOnly = parsed.filter(
+            (e) => !e.id.startsWith('e-today-') && !/^e-d\d+-/.test(e.id)
+          );
+          return userOnly;
         }
       }
     } catch (e) {
       console.error('Error loading expenses from storage:', e);
     }
-    return getInitialExpenses();
+    const initial = getInitialExpenses(); // Returns []
+    try {
+      localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(initial));
+    } catch (e) {}
+    return initial;
   });
 
   // Custom + Default categories
   const [categories, setCategories] = useState<Category[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_CATEGORIES);
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       }
@@ -45,7 +53,7 @@ export function useExpenses() {
   const [budgetConfig, setBudgetConfig] = useState<UserBudgetConfig>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_CONFIG);
-      if (saved) {
+      if (saved !== null) {
         return JSON.parse(saved);
       }
     } catch (e) {
@@ -58,13 +66,32 @@ export function useExpenses() {
     };
   });
 
-  // Save changes to localStorage
-  useEffect(() => {
+  // Save changes to localStorage + dual backup immediately
+  const saveExpensesSync = (data: Expense[]) => {
     try {
-      localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(expenses));
+      const json = JSON.stringify(data);
+      localStorage.setItem(STORAGE_KEY_EXPENSES, json);
+      localStorage.setItem(STORAGE_KEY_EXPENSES + '_backup', json);
     } catch (e) {
-      console.error('Failed to save expenses:', e);
+      console.error('Failed to sync expenses to localStorage:', e);
     }
+  };
+
+  useEffect(() => {
+    saveExpensesSync(expenses);
+  }, [expenses]);
+
+  // Window close / tab switch sync guarantee
+  useEffect(() => {
+    const handleFlush = () => {
+      saveExpensesSync(expenses);
+    };
+    window.addEventListener('beforeunload', handleFlush);
+    window.addEventListener('visibilitychange', handleFlush);
+    return () => {
+      window.removeEventListener('beforeunload', handleFlush);
+      window.removeEventListener('visibilitychange', handleFlush);
+    };
   }, [expenses]);
 
   useEffect(() => {
@@ -240,6 +267,21 @@ export function useExpenses() {
       .sort((a, b) => b.total - a.total);
   };
 
+  // Summary statistics for history and yesterday
+  const yesterdayIso = getPastDateIso(1);
+  const yesterdayExpenses = useMemo(() => {
+    return expenses.filter((e) => e.date === yesterdayIso);
+  }, [expenses, yesterdayIso]);
+
+  const yesterdayTotal = useMemo(() => {
+    return yesterdayExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  }, [yesterdayExpenses]);
+
+  const totalSavedCount = expenses.length;
+  const totalSavedAmount = useMemo(() => {
+    return expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  }, [expenses]);
+
   return {
     expenses,
     categories,
@@ -257,6 +299,11 @@ export function useExpenses() {
     todayTotal,
     todayTopExpense,
     todayMostUsedCategory,
+    yesterdayIso,
+    yesterdayExpenses,
+    yesterdayTotal,
+    totalSavedCount,
+    totalSavedAmount,
     getPeriodExpenses,
     getCategoryBreakdown,
   };

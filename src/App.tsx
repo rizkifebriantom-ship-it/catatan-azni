@@ -26,6 +26,10 @@ export default function App() {
     todayTotal,
     todayTopExpense,
     todayMostUsedCategory,
+    yesterdayExpenses,
+    yesterdayTotal,
+    totalSavedCount,
+    totalSavedAmount,
     getCategoryBreakdown,
   } = useExpenses();
 
@@ -82,6 +86,10 @@ export default function App() {
             todayTotal={todayTotal}
             todayTopExpense={todayTopExpense}
             todayMostUsedCategory={todayMostUsedCategory}
+            yesterdayExpenses={yesterdayExpenses}
+            yesterdayTotal={yesterdayTotal}
+            totalSavedCount={totalSavedCount}
+            totalSavedAmount={totalSavedAmount}
             budgetConfig={budgetConfig}
             getCategoryDetails={getCategoryDetails}
             onOpenAddModal={handleOpenAddModal}

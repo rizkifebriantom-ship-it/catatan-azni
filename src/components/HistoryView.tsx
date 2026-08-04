@@ -101,8 +101,12 @@ export const HistoryView: React.FC<HistoryViewProps> = ({
             <span>📖</span>
             Riwayat Catatan Pengeluaran
           </h2>
-          <p className="text-xs text-[#4a4a40]/80 mt-1">
-            Semua transaksi harianmu tersimpan rapi dan dapat diunduh ke Excel.
+          <p className="text-xs text-[#4a4a40]/80 mt-1 flex items-center gap-1.5 flex-wrap">
+            <span>Semua transaksi harianmu tersimpan rapi di memori browser dan dapat diunduh ke Excel / PDF.</span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Auto-Tersimpan
+            </span>
           </p>
         </div>
 

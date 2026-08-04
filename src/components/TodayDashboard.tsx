@@ -10,6 +10,10 @@ interface TodayDashboardProps {
   todayTotal: number;
   todayTopExpense: Expense | null;
   todayMostUsedCategory: Category | null;
+  yesterdayExpenses?: Expense[];
+  yesterdayTotal?: number;
+  totalSavedCount?: number;
+  totalSavedAmount?: number;
   budgetConfig: UserBudgetConfig;
   getCategoryDetails: (catIdOrName: string) => Category;
   onOpenAddModal: (prefill?: Partial<Expense>) => void;
@@ -24,6 +28,10 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
   todayTotal,
   todayTopExpense,
   todayMostUsedCategory,
+  yesterdayExpenses = [],
+  yesterdayTotal = 0,
+  totalSavedCount = 0,
+  totalSavedAmount = 0,
   budgetConfig,
   getCategoryDetails,
   onOpenAddModal,
@@ -212,6 +220,37 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         <span>{budgetStatus.message}</span>
       </div>
 
+      {/* Auto-Saved History Status Banner */}
+      <div className="bg-[#f5f5f0] p-4 sm:p-5 rounded-[24px] border border-[#e5e5d1] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[#7d8c77] text-white flex items-center justify-center text-lg shrink-0 mt-0.5">
+            💾
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold text-[#5a5a40] font-serif">
+                {totalSavedCount} Catatan Pengeluaran Tersimpan Otomatis
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                Aman di Web
+              </span>
+            </div>
+            <p className="text-xs text-[#4a4a40]/80 mt-0.5">
+              {yesterdayExpenses.length > 0
+                ? `Pengeluaran kemarin (${yesterdayExpenses.length} transaksi, ${formatRupiah(yesterdayTotal)}) & hari-hari sebelumnya tersimpan rapi di menu Riwayat.`
+                : `Total ${totalSavedCount} transaksi (${formatRupiah(totalSavedAmount)}) telah tersimpan otomatis di browser web kamu.`}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={onNavigateToHistory}
+          className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-white hover:bg-[#e5e5d1]/50 border border-[#e5e5d1] text-xs font-bold text-[#5a5a40] transition-all cursor-pointer shrink-0 text-center"
+        >
+          Buka Tab Riwayat ({totalSavedCount}) →
+        </button>
+      </div>
+
       {/* Quick 1-Tap Presets Bar */}
       <div className="bg-[#f5f5f0] p-5 rounded-[28px] border border-[#e5e5d1] space-y-3">
         <div className="flex items-center justify-between">
@@ -264,21 +303,29 @@ export const TodayDashboard: React.FC<TodayDashboardProps> = ({
         </div>
 
         {todayExpenses.length === 0 ? (
-          <div className="text-center py-10 px-4 bg-[#fdfbf7] rounded-2xl border border-dashed border-[#e5e5d1] space-y-3">
+          <div className="text-center py-8 px-4 bg-[#fdfbf7] rounded-2xl border border-dashed border-[#e5e5d1] space-y-3">
             <div className="text-4xl">🍃</div>
             <p className="text-sm font-bold text-[#5a5a40] font-serif">
-              Belum ada pengeluaran dicatat hari ini!
+              Belum ada pengeluaran dicatat untuk HARI INI!
             </p>
-            <p className="text-xs text-[#4a4a40]/80 max-w-xs mx-auto">
-              Klik tombol di bawah setiap kali kamu jajan, makan, minum kopi, atau bayar transaksi.
+            <p className="text-xs text-[#4a4a40]/80 max-w-md mx-auto">
+              Catatan pengeluaranmu kemarin & hari-hari sebelumnya ({totalSavedCount} transaksi) <strong>tetap tersimpan aman otomatis</strong> di tab <strong>Riwayat</strong>.
             </p>
-            <button
-              onClick={() => onOpenAddModal()}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-2xl bg-[#5a5a40] text-white font-bold text-xs shadow-xs hover:bg-[#4a4a30] transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              Catat Pengeluaran Pertama
-            </button>
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+              <button
+                onClick={() => onOpenAddModal()}
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-2xl bg-[#5a5a40] text-white font-bold text-xs shadow-xs hover:bg-[#4a4a30] transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                Catat Pengeluaran Hari Ini
+              </button>
+              <button
+                onClick={onNavigateToHistory}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white border border-[#e5e5d1] text-[#5a5a40] font-bold text-xs hover:bg-[#f5f5f0] transition-all cursor-pointer"
+              >
+                📜 Buka Catatan Kemarin & Lalu →
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">

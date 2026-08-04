@@ -43,15 +43,19 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             <div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <h1 className="text-xl font-bold tracking-tight text-[#5a5a40] font-serif">
                   CatatYuk
                 </h1>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#e5e5d1] text-[#5a5a40] border border-[#d1d1bc]">
                   Harian 🐱
                 </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200" title="Semua catatan pengeluaran tersimpan otomatis di browser web kamu">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Auto-Simpan Web
+                </span>
               </div>
-              <p className="text-xs font-medium text-[#4a4a40]/80 flex items-center gap-1">
+              <p className="text-xs font-medium text-[#4a4a40]/80 flex items-center gap-1 mt-0.5">
                 <Calendar className="w-3 h-3 text-[#7d8c77]" />
                 {formattedToday}
               </p>
